@@ -7,7 +7,6 @@ class DataLoader:
 
     def __init__(self, data_dir: str = None):
         if data_dir is None:
-            # Автоматически определяем корень проекта от файла loader.py
             project_root = Path(__file__).resolve().parent.parent.parent
             self.data_dir = project_root / "data" / "raw" / "ml-100k"
         else:
@@ -25,8 +24,15 @@ class DataLoader:
         if not ratings_path.exists():
             raise FileNotFoundError(f"Файл не найден: {ratings_path}")
 
-        cols = ['user_id', 'movie_id', 'rating', 'timestamp']
-        ratings = pd.read_csv(ratings_path, sep='\t', names=cols, engine='python')
+        # Обход бага Python 3.14: чтение файла напрямую через pure Python
+        records = []
+        with open(ratings_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                parts = line.strip().split()
+                if len(parts) >= 4:
+                    records.append((int(parts[0]), int(parts[1]), float(parts[2]), int(parts[3])))
+
+        ratings = pd.DataFrame(records, columns=['user_id', 'movie_id', 'rating', 'timestamp'])
         ratings['datetime'] = pd.to_datetime(ratings['timestamp'], unit='s')
         return ratings
 
@@ -36,8 +42,21 @@ class DataLoader:
         if not movies_path.exists():
             raise FileNotFoundError(f"Файл не найден: {movies_path}")
 
+        records = []
+        with open(movies_path, 'r', encoding='latin-1') as f:
+            for line in f:
+                parts = line.strip().split('|')
+                if len(parts) >= 24:
+                    movie_id = int(parts[0])
+                    title = parts[1]
+                    release_date = parts[2]
+                    video_release = parts[3]
+                    imdb_url = parts[4]
+                    genres = [int(x) for x in parts[5:24]]
+                    records.append([movie_id, title, release_date, video_release, imdb_url] + genres)
+
         cols = ['movie_id', 'title', 'release_date', 'video_release_date', 'IMDb_URL'] + self.genre_cols
-        movies = pd.read_csv(movies_path, sep='|', names=cols, encoding='latin-1')
+        movies = pd.DataFrame(records, columns=cols)
         movies.drop(columns=['video_release_date', 'IMDb_URL'], inplace=True)
 
         movies['genres_text'] = movies.apply(
