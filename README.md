@@ -41,10 +41,14 @@ movie-recommendation-system/
 
 ```
 
+## How It Works
 
-⚙️ How It WorksThe recommendation pipeline uses a hybrid formula combining content similarity with collaborative user preference scores:$$\text{Final Score} = \alpha \cdot \text{Score}_{\text{Collaborative}} + (1 - \alpha) \cdot \text{Score}_{\text{Content}}$$Content-Based Engine (src/models/content_based.py): Vectorizes movie genre text metadata using TfidfVectorizer and computes pairwise cosine similarity matrices across items.Collaborative Engine (src/models/collaborative.py): Performs Singular Value Decomposition (scipy.sparse.linalg.svds) on normalized User-Item rating matrices to infer latent user preferences.Hybrid Engine (src/models/hybrid.py): Scales collaborative predictions into $[0, 1]$ via MinMaxScaler, computes average user content profiles based on highly rated titles, and generates a weighted composite rank.
+The recommendation pipeline uses a hybrid formula combining content similarity with collaborative user preference scores:
 
+$$\text{Final Score} = \alpha \cdot \text{Score}_{\text{Collaborative}} + (1 - \alpha) \cdot \text{Score}_{\text{Content}}$$
 
+1. **Content-Based Engine (`src/models/content_based.py`)**: Vectorizes movie genre text metadata using `TfidfVectorizer` and computes pairwise cosine similarity matrices across items.
+2. **Collaborative Engine (`src/models/collaborative.py`)**: Performs Singular Value Decomposition (`scipy.sparse.linalg.svds`) on normalized User-Item rating matrices to infer latent user preferences.
 <p align="center">
   <img src="assets/img.png" alt="System Architecture Diagram" width="700"><br>
   <sub><b>Figure 1:</b> Visual representation of movie recommendation system</sub>
