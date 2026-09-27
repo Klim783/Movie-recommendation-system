@@ -47,5 +47,5 @@ movie-recommendation-system/
 
 <p align="center">
   <img src="assets/img.png" alt="System Architecture Diagram" width="700"><br>
-  <sub>Visual representation of recommendation movie system</sub>
+  <sub><b>Figure 1:</b> Visual representation of movie recommendation system</sub>
 </p>
